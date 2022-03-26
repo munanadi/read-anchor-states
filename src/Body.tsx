@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { CyclosCore, IDL } from "./cyclos-core";
 
 import * as anchor from "@project-serum/anchor";
-import { AccountNamespace } from "@project-serum/anchor";
+import { AccountClient, AccountNamespace } from "@project-serum/anchor";
 const { PublicKey } = anchor.web3;
 
 export const Body = () => {
@@ -36,11 +36,22 @@ export const Body = () => {
 
   useEffect(() => {
     async function fetchStates() {
+      const a = cyclosCore.account as AccountNamespace;
+
       const data = Promise.all(
-        Object.keys(cyclosCore.account).map(async (accountType) => {
+        Object.keys(cyclosCore.account).map(async (accountType, i) => {
+          if (i != 0) return "";
+
           console.log(`Fetching for ${accountType}`);
 
-          return "";
+          const accClient = new anchor.AccountClient(
+            IDL,
+            IDL.accounts[i],
+            cyclosCore.programId,
+            provider
+          );
+
+          return await accClient.all();
 
           // console.log(poolStates);
         })
